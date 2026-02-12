@@ -1,5 +1,5 @@
 {
-  "name": "react-devtools-mcp",
+  "name": "@ferryhinardi/react-devtools-mcp",
   "version": "1.0.0",
   "description": "MCP server for React DevTools — inspect component trees, props, state, and hooks via AI agents",
   "author": "ferryhinardi",
