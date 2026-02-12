@@ -13,27 +13,29 @@ The server uses `puppeteer-core` (~2MB, no bundled browser) to connect to an exi
 ## Prerequisites
 
 1. **Node.js ≥ 20**
-2. **Chrome** launched with remote debugging:
-
-```bash
-# macOS
-/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222
-
-# Linux
-google-chrome --remote-debugging-port=9222
-
-# Windows
-"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222
-```
-
+2. **Chrome, Chromium, Edge, or Brave** installed (auto-detected)
 3. **React app running in development mode** (production builds strip fiber debug info)
+
+> **Note:** You do **not** need to manually launch Chrome with `--remote-debugging-port`. The MCP auto-detects your browser installation and launches a debug instance automatically when you call `connect_to_browser`. A temporary profile is used so it won't affect your existing sessions.
+>
+> If you prefer manual control, you can still launch Chrome yourself:
+> ```bash
+> # macOS
+> /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222
+>
+> # Linux
+> google-chrome --remote-debugging-port=9222
+>
+> # Windows
+> "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222
+> ```
 
 ## Installation
 
 ### From npm
 
 ```bash
-npm install -g react-devtools-mcp
+npm install -g @ferryhinardi/react-devtools-mcp
 ```
 
 ### From source
@@ -68,6 +70,22 @@ Or if installed from source:
 }
 ```
 
+### OpenCode
+
+Add to `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "mcp": {
+    "react-devtools": {
+      "type": "local",
+      "command": ["node", "/path/to/react-devtools-mcp/dist/index.js"],
+      "enabled": true
+    }
+  }
+}
+```
+
 ### Claude Desktop
 
 Add to `claude_desktop_config.json`:
@@ -85,14 +103,15 @@ Add to `claude_desktop_config.json`:
 ## Available Tools
 
 ### `connect_to_browser`
-Connect to a running Chrome instance. Must be called first.
+Connect to Chrome. Auto-detects installation and launches with remote debugging if needed. Must be called first.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `port` | number | 9222 | Chrome remote debugging port |
+| `autoLaunch` | boolean | true | Auto-launch Chrome if no debug port is found |
 
 ### `get_component_tree`
-Get the React component tree hierarchy.
+Get the **React component tree** (not the HTML DOM tree). Only React components are returned by default — use `includeHtml: true` to also include host elements like `div`, `span`.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
@@ -168,6 +187,18 @@ Profiler started.
   { componentName: "TodoList", renderCount: 3, totalDuration: 1.2, avgDuration: 0.4 }
 ]
 ```
+
+## Browser Auto-Detection
+
+The MCP searches for browsers in this order:
+
+**macOS:** Google Chrome → Chrome Canary → Chromium → Microsoft Edge → Brave
+
+**Linux:** google-chrome → chromium → chromium-browser (snap) → Microsoft Edge → Brave
+
+**Windows:** Chrome (Program Files) → Chrome (x86) → Chrome (AppData) → Edge → Brave
+
+If none are found, it falls back to `which google-chrome` / `which chromium` on unix systems.
 
 ## Limitations
 
